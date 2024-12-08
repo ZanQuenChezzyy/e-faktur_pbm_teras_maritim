@@ -403,7 +403,7 @@
         }
 
         .h-12 {
-            height: 3rem;
+            height: 6rem;
         }
 
         .w-1\/2 {

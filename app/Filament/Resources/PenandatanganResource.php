@@ -48,6 +48,8 @@ class PenandatanganResource extends Resource
                 TextInput::make('nama')
                     ->label('Nama Pendandatangan')
                     ->placeholder('Masukkan Nama Penandatangan')
+                    ->inlineLabel()
+                    ->columnSpanFull()
                     ->required(),
             ]);
     }

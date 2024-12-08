@@ -53,6 +53,8 @@ class RoleResource extends Resource
                 TextInput::make('name')
                     ->label('Nama Jabatan')
                     ->placeholder('Masukkan Nama Jabatan')
+                    ->inlineLabel()
+                    ->columnSpanFull()
                     ->minLength(3)
                     ->required(),
             ]);

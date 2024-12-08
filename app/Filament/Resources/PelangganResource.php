@@ -6,9 +6,11 @@ use App\Filament\Resources\PelangganResource\Pages;
 use App\Filament\Resources\PelangganResource\RelationManagers;
 use App\Models\Pelanggan;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
@@ -46,14 +48,32 @@ class PelangganResource extends Resource
                     ->placeholder('Masukkan Nomor NPWP')
                     ->maxLength(25)
                     ->unique(ignoreRecord: true)
+                    ->hintAction(
+                        Action::make('copy')
+                            ->label('Salin NPWP ke NITKU')
+                            ->icon('heroicon-m-clipboard')
+                            ->action(function (Set $set, $state) {
+                                $cleanState = preg_replace('/\D/', '', $state);
+                                $nitku = '0' . $cleanState . '000000';
+                                $nitku = substr($nitku, 0, 3) . '.' .
+                                    substr($nitku, 3, 3) . '.' .
+                                    substr($nitku, 6, 3) . '.' .
+                                    substr($nitku, 9, 1) . '-' .
+                                    substr($nitku, 10, 3) . '.' .
+                                    substr($nitku, 13, 3) . '.' .
+                                    substr($nitku, 16);
+                                $set('nitku', $nitku);
+                            })
+                    )
+                    ->mask(RawJs::make("'99.999.999.9-999.999'"))
                     ->required(),
 
                 TextInput::make('nitku')
                     ->label('Nomor NITKU')
                     ->placeholder('Masukkan Nomor NITKU')
-                    ->maxLength(25)
-                    ->unique(ignoreRecord: true)
-                    ->required(),
+                    ->mask(RawJs::make("'099.999.999.9-999.999.000000'"))
+                    ->maxLength(40)
+                    ->unique(ignoreRecord: true),
 
                 TextInput::make('nama')
                     ->label('Nama Pelanggan')

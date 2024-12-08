@@ -48,6 +48,8 @@ class TipeFakturResource extends Resource
                 TextInput::make('nama')
                     ->label('Nama Tipe Faktur')
                     ->placeholder('Masukkan Nama Tipe Faktur')
+                    ->inlineLabel()
+                    ->columnSpanFull()
                     ->required(),
             ]);
     }

@@ -12,10 +12,12 @@ use App\Models\Penandatangan;
 use App\Models\TipeFaktur;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
@@ -111,6 +113,24 @@ class FakturResource extends Resource
                     ->searchable()
                     ->columnSpanFull()
                     ->reactive()
+                    ->hintAction(
+                        FormAction::make('update')
+                            ->label('Perbarui DPP')
+                            ->icon('heroicon-m-calculator')
+                            ->action(function (Set $set, $state) {
+                                $subtotal = BarangJasa::where('id', $state)->value('subtotal');
+
+                                if ($subtotal !== null) {
+                                    // Format subtotal sesuai dengan input mask (contoh: "1,000,000")
+                                    $formattedTotal = number_format($subtotal, 0, ',', ',');
+                                    // Set nilai dpp dengan format
+                                    $set('dpp', $formattedTotal);
+                                } else {
+                                    // Jika tidak ada subtotal, kosongkan nilai dpp
+                                    $set('dpp', null);
+                                }
+                            })
+                    )
                     ->afterStateUpdated(function (callable $set, $state) {
                         // Ambil subtotal dari BarangJasa berdasarkan referensi_id yang dipilih
                         $subtotal = BarangJasa::where('id', $state)->value('subtotal');
@@ -228,10 +248,10 @@ class FakturResource extends Resource
                     ->description(fn(Faktur $record): string => Carbon::parse($record->tanggal)->translatedFormat('D, d/m/Y'))
                     ->searchable(),
 
-                TextColumn::make('referensi.subtotal')
+                TextColumn::make('dpp')
                     ->label('DPP & PPN')
                     ->formatStateUsing(function (Faktur $record): string {
-                        $dpp = $record->referensi->subtotal ? 'Rp' . number_format($record->referensi->subtotal, 2, ',', '.') : 'DPP Belum Diisi';
+                        $dpp = $record->dpp ? 'Rp' . number_format($record->dpp, 2, ',', '.') : 'DPP Belum Diisi';
                         $ppn = $record->ppn ? "{$record->ppn}%" : '0%';
                         return "{$dpp} / {$ppn}";
                     })
